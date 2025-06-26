@@ -475,6 +475,35 @@ def list_commands() -> str:
     
     return "Available ParaView commands:\n\n" + "\n".join(commands)
 
+@mcp.tool()
+def execute_pvpython(code: str) -> str:
+    """
+    Execute arbitrary pvpython code in the ParaView Python environment.
+
+    Args:
+        code: A string of Python code to execute. The code can use 'paraview.simple' and 'pv_manager'.
+
+    Returns:
+        The output or error message as a string.
+    """
+    import io
+    import contextlib
+
+    local_vars = {"pv_manager": pv_manager}
+    try:
+        from paraview import simple
+        local_vars["simple"] = simple
+    except ImportError:
+        return "paraview.simple is not available."
+
+    output = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output):
+            exec(code, {}, local_vars)
+        return output.getvalue() or "Code executed successfully."
+    except Exception as e:
+        return f"Error executing code: {str(e)}"
+
 
 def main():
     parser = argparse.ArgumentParser(description="ParaView External MCP Server")
