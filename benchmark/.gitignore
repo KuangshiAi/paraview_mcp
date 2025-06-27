@@ -1,0 +1,3 @@
+# Exclude communication logs and screenshots (test data)
+communication_logs/
+*.log
